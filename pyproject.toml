@@ -1,0 +1,5 @@
+[project]
+name = "python-voice-rag-chatbot"
+version = "0.1.0"
+description = "Python Voice RAG Chatbot"
+requires-python = ">=3.10"
