@@ -4,7 +4,7 @@
 > This is an original, from-scratch build. It is not affiliated with, and does not
 > contain any code, prompts, data, or business logic from, any employer or client.
 
-![status](https://img.shields.io/badge/status-planned-lightgrey)
+![status](https://img.shields.io/badge/status-in%20progress-yellow)
 ![python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 
@@ -81,11 +81,25 @@ No proprietary, employer-owned, or client-identifiable data is used in this proj
 
 ## 9. Training / Execution
 
-Document the commands used to run training, ingestion, or the main pipeline, e.g.:
+Phase 1 — microphone input capture (implemented):
 
 ```bash
-python -m src.main --config configs/default.yaml
+pip install -r requirements.txt            # + `pip install PyAudio` for live mic
+export PYTHONPATH=src                       # or `pip install -e .`
+
+# Capture 5s from the microphone and report what was captured:
+python -m voice_rag_chatbot --source microphone --duration 5
+
+# Stop on a pause instead of a fixed duration:
+python -m voice_rag_chatbot --source microphone --until-silence
+
+# No microphone (CI / headless): read a WAV file instead:
+python scripts/make_example_audio.py
+python -m voice_rag_chatbot --source file --file examples/hello.wav --save out.wav
 ```
+
+Environments without a usable microphone raise a clear
+`MicrophoneUnavailableError` (exit code 2) pointing at the file source.
 
 ## 10. Evaluation
 
@@ -135,4 +149,4 @@ business logic. All code, data, and documentation here are original or built on
 publicly available datasets and open-source tools.
 
 ---
-_Last updated: 2026-08-18_
+_Last updated: 2026-09-02_

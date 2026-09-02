@@ -1,0 +1,34 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Voice RAG Chatbot: capture (microphone)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "voice_rag_chatbot",
+      "args": ["--source", "microphone", "--duration", "5"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}/src" }
+    },
+    {
+      "name": "Voice RAG Chatbot: capture (file, no mic needed)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "voice_rag_chatbot",
+      "args": ["--source", "file", "--file", "examples/hello.wav"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}/src" }
+    },
+    {
+      "name": "Voice RAG Chatbot: pytest",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["tests/", "-v"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
