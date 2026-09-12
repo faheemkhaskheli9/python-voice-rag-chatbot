@@ -16,6 +16,7 @@ import sys
 from collections.abc import Sequence
 
 from .audio_input import MicrophoneUnavailableError, capture_audio
+from .transcription import TranscriptionError, transcribe_audio
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -49,6 +50,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--save",
         dest="save_path",
         help="Write the captured audio to this WAV path.",
+    )
+    parser.add_argument(
+        "--transcribe",
+        action="store_true",
+        help="Also run speech-to-text on the captured audio and print the text "
+        "(calls a network STT engine by default; requires 'google' reachability).",
     )
     return parser
 
@@ -90,6 +97,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.save_path:
         written = audio.write_wav(args.save_path)
         print(f"  saved -> {written}")
+
+    if args.transcribe:
+        try:
+            result = transcribe_audio(audio)
+        except TranscriptionError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+        if result.success:
+            print(f"  transcript: {result.text!r}")
+        else:
+            print(f"  transcript failed: {result.error}", file=sys.stderr)
 
     return 0
 
