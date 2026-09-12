@@ -16,6 +16,7 @@ import sys
 from collections.abc import Sequence
 
 from .audio_input import MicrophoneUnavailableError, capture_audio
+from .synthesis import SynthesisError, play_audio, synthesize_speech
 from .transcription import TranscriptionError, transcribe_audio
 
 
@@ -56,6 +57,30 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Also run speech-to-text on the captured audio and print the text "
         "(calls a network STT engine by default; requires 'google' reachability).",
+    )
+    parser.add_argument(
+        "--speak",
+        dest="speak_text",
+        help="Synthesize this text to speech and play it back "
+        "(closes the mic-to-text/text-to-speech loop for Phase 1).",
+    )
+    parser.add_argument(
+        "--tts-engine",
+        choices=["pyttsx3", "gtts"],
+        default="pyttsx3",
+        help="TTS engine for --speak: offline pyttsx3 (default) or cloud gTTS.",
+    )
+    parser.add_argument(
+        "--speak-out",
+        dest="speak_out_path",
+        default="response.mp3",
+        help="Where to write the synthesized audio for --speak (default: response.mp3).",
+    )
+    parser.add_argument(
+        "--no-playback",
+        action="store_true",
+        help="With --speak, only generate the audio file; skip playback "
+        "(useful on machines with no speaker/audio driver).",
     )
     return parser
 
@@ -108,6 +133,28 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"  transcript: {result.text!r}")
         else:
             print(f"  transcript failed: {result.error}", file=sys.stderr)
+
+    if args.speak_text:
+        try:
+            synth_result = synthesize_speech(
+                args.speak_text, args.speak_out_path, engine=args.tts_engine
+            )
+        except SynthesisError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+
+        if not synth_result.success:
+            print(f"error: {synth_result.error}", file=sys.stderr)
+            return 2
+
+        print(f"  synthesized ({synth_result.engine}) -> {synth_result.audio_path}")
+        if not args.no_playback:
+            if not play_audio(synth_result.audio_path):
+                print(
+                    "  warning: could not play audio (no audio backend/device); "
+                    "file was still written",
+                    file=sys.stderr,
+                )
 
     return 0
 

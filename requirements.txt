@@ -1,9 +1,15 @@
-# Runtime dependencies (Phase 1: microphone input capture).
+# Runtime dependencies (Phase 1: mic-to-text and text-to-speech loop).
 # Pinned as implementation progresses.
 
 SpeechRecognition>=3.10,<4    # microphone interface + AudioData container
+pyttsx3>=2.90,<3              # offline TTS engine (default for --speak)
+gTTS>=2.5,<3                  # cloud TTS engine, alternate --tts-engine choice
 
 # Live microphone capture also needs a PyAudio backend. It is intentionally
 # NOT listed above: it needs the system PortAudio library, is not needed for
 # the file-based capture path, and CI has no audio device. Install locally
 # with:  pip install PyAudio>=0.2.11
+
+# Playback of synthesized audio (optional; play_audio() degrades to a no-op
+# warning without it, e.g. on headless CI). Install locally with:
+#   pip install playsound>=1.3,<2
